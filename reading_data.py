@@ -26,8 +26,21 @@ for file in os.listdir(path):
 file_path = path + "/" + data_file
 pridb = vae.io.PriDatabase(file_path)  
 df = pridb.read_hits()  # save all hits to pandas dataframe
-
 df[["time", "channel", "trai"]] 
+
+# defining the hits threshold
+db_threshold = 89
+volt_threshold = 10**(db_threshold /20) * 10**-6
+
+hit_df = df[df["amplitude"] > volt_threshold]
+print(hit_df)
+
+# plotting hits amplitudes above threshold
+fig, ax = plt.subplots()
+ax.scatter(hit_df.trai, hit_df.amplitude)
+ax.set_xlabel("Trai")
+ax.set_ylabel("Amplitude [mV]")
+ax.set_title(f"Hits above {db_threshold} dB amplitude threshold")
 
 #%% extracting wave traces
 
@@ -38,8 +51,11 @@ for file in os.listdir(path):
 file_path = path + "/" + data_file
 trace = vae.io.TraDatabase(file_path)
 
-kk = trace.read_wave(63471)
+trai = 62393
+waveform = trace.read_wave(trai)
 
 fig, ax = plt.subplots()
-ax.plot(kk[1], kk[0])
-ax.set_xlim(-0.00005, 0.00005)
+ax.plot(waveform[1], waveform[0])
+ax.set_xlabel("time [ms]")
+ax.set_ylabel("amplitude [mV]")
+ax.set_title(f"waveform hit #trai {trai}")
